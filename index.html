@@ -4,33 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brainlet Gallery</title>
-    <!-- Google Font: Patrick Hand -->
-    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1 class="main-title">Brainlet Gallery</h1>
+        <h1>Brainlet Gallery</h1>
         <input type="text" id="search" placeholder="Search memes...">
     </header>
 
     <section id="gallery"></section>
 
+    <!-- Modal for detailed view -->
+    <div id="mediaModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalImage" class="modal-image" alt="Detailed view image" style="display: none;">
+            <video id="modalVideo" class="modal-video" controls style="display: none;"></video>
+            <h3 id="modalTitle"></h3>
+            <p id="modalArtist"></p>
+            <p id="modalTags"></p>
+
+            <!-- Buttons to copy and download -->
+            <button id="copyButton">Copy URL</button>
+            <button id="downloadButton">Download</button>
+            <button id="copyImageButton" style="display: none;">Copy</button> <!-- New Copy Image Button -->
+        </div>
+    </div>
+
     <script src="script.js"></script>
-<!-- Modal for detailed view -->
-<div id="mediaModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <img id="modalImage" class="modal-image" alt="Detailed view image">
-    <video id="modalVideo" class="modal-video" controls style="display: none;"></video>
-    <h3 id="modalTitle"></h3>
-    <p id="modalArtist"></p>
-    <p id="modalTags"></p>
-    
-    <!-- Buttons to copy and download -->
-    <button id="copyButton">Copy URL</button>
-    <button id="downloadButton">Download</button>
-  </div>
-</div>
 </body>
 </html>

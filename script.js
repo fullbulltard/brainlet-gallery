@@ -142,16 +142,20 @@ document.addEventListener('DOMContentLoaded', function() {
         modalArtist.textContent = `Artist: ${artist}`;
         modalTags.textContent = `Tags: ${tags}`;
 
-        // Show image or video in the modal
+        // Check if modalImage and modalVideo exist before using them
         if (mediaUrl.endsWith('.mp4')) {
-            modalImage.style.display = 'none';
-            modalVideo.style.display = 'block';
-            modalVideo.src = mediaUrl;
+            if (modalImage) modalImage.style.display = 'none';
+            if (modalVideo) {
+                modalVideo.style.display = 'block';
+                modalVideo.src = mediaUrl;
+            }
             copyImageButton.style.display = 'none';  // Hide the copy button for videos
         } else {
-            modalVideo.style.display = 'none';
-            modalImage.style.display = 'block';
-            modalImage.src = mediaUrl;
+            if (modalVideo) modalVideo.style.display = 'none';
+            if (modalImage) {
+                modalImage.style.display = 'block';
+                modalImage.src = mediaUrl;
+            }
             copyImageButton.style.display = 'inline-block';  // Show the copy button for images/GIFs
             copyImageButton.textContent = mediaUrl.endsWith('.gif') ? 'Copy GIF' : 'Copy Image';  // Set button text
         }
