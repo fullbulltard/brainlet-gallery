@@ -160,4 +160,21 @@ function downloadMedia(url, title) {
     a.download = title;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild
+    document.body.removeChild(a);
+}
+
+// Close the modal when clicking the "X" button
+const closeModal = document.querySelector('.close');
+closeModal.onclick = () => {
+    modal.style.display = 'none';
+};
+
+// Close the modal when clicking outside of it
+window.onclick = (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Initialize the gallery by fetching media from Airtable
+fetchMedia();
