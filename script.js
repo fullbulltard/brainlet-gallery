@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTags = document.getElementById('modalTags');
     const copyButton = document.getElementById('copyButton');
     const downloadButton = document.getElementById('downloadButton');
+    const copyImageButton = document.getElementById('copyImageButton'); // New Copy Image Button
 
     // Close the modal when clicking the "X" button
     const closeModal = document.querySelector('#mediaModal .close');
@@ -146,15 +147,21 @@ document.addEventListener('DOMContentLoaded', function() {
             modalImage.style.display = 'none';
             modalVideo.style.display = 'block';
             modalVideo.src = mediaUrl;
+            copyImageButton.style.display = 'none';  // Hide the copy button for videos
         } else {
             modalVideo.style.display = 'none';
             modalImage.style.display = 'block';
             modalImage.src = mediaUrl;
+            copyImageButton.style.display = 'inline-block';  // Show the copy button for images/GIFs
+            copyImageButton.textContent = mediaUrl.endsWith('.gif') ? 'Copy GIF' : 'Copy Image';  // Set button text
         }
 
         // Set the URL for copy/download functionality
         copyButton.onclick = () => copyToClipboard(mediaUrl);
         downloadButton.onclick = () => downloadMedia(mediaUrl, title);
+
+        // Handle copying the image/GIF directly
+        copyImageButton.onclick = () => copyMedia(mediaUrl);
 
         // Show the modal
         modal.style.display = 'block';
@@ -165,6 +172,20 @@ document.addEventListener('DOMContentLoaded', function() {
         navigator.clipboard.writeText(url).then(() => {
             alert('URL copied to clipboard');
         });
+    }
+
+    // Copy media (image/GIF) to clipboard
+    async function copyMedia(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const item = new ClipboardItem({ [blob.type]: blob });
+            await navigator.clipboard.write([item]);
+            alert('Image/GIF copied to clipboard');
+        } catch (error) {
+            console.error('Error copying media to clipboard:', error);
+            alert('Failed to copy image/GIF');
+        }
     }
 
     // Download media file
