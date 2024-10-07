@@ -14,6 +14,7 @@ function fetchMedia() {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Fetched data from Airtable:', data);  // Logs the full Airtable response
         displayMedia(data.records);  // Display media items in the gallery
     })
     .catch(error => console.error('Error fetching data:', error));
@@ -27,22 +28,25 @@ function displayMedia(mediaRecords) {
         const title = record.fields.Title;
         const artist = record.fields.Artist;
         const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
-        const mediaUrl = record.fields.CloudinaryURL;  // Cloudinary URL from Airtable
+        const mediaUrl = record.fields.CloudinaryURL;
+
+        console.log('Processing record:', title, mediaUrl);  // Logs every record processed
 
         const mediaCard = document.createElement('div');
         mediaCard.classList.add('image-card');
 
-        if (mediaUrl && mediaUrl.endsWith('.mp4')) {
-            // If it's a video
-            const videoElement = document.createElement('video');
-            videoElement.src = mediaUrl;
-            videoElement.controls = true;
-            mediaCard.appendChild(videoElement);
-        } else if (mediaUrl) {
-            // For images and gifs
-            const imgElement = document.createElement('img');
-            imgElement.src = mediaUrl;
-            mediaCard.appendChild(imgElement);
+        // Check if mediaUrl is defined and not empty before using it
+        if (mediaUrl) {
+            if (mediaUrl.endsWith('.mp4')) {
+                const videoElement = document.createElement('video');
+                videoElement.src = mediaUrl;
+                videoElement.controls = true;
+                mediaCard.appendChild(videoElement);
+            } else {
+                const imgElement = document.createElement('img');
+                imgElement.src = mediaUrl;
+                mediaCard.appendChild(imgElement);
+            }
         } else {
             console.warn('Missing media URL for record:', title);
         }
