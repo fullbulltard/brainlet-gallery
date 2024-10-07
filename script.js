@@ -32,8 +32,18 @@ function displayMedia(mediaRecords) {
         const mediaCard = document.createElement('div');
         mediaCard.classList.add('image-card');
 
-        const imgElement = document.createElement('img');
-        imgElement.src = mediaUrl;
+        if (mediaUrl.endsWith('.mp4')) {
+            // If it's a video
+            const videoElement = document.createElement('video');
+            videoElement.src = mediaUrl;
+            videoElement.controls = true;
+            mediaCard.appendChild(videoElement);
+        } else {
+            // For images and gifs
+            const imgElement = document.createElement('img');
+            imgElement.src = mediaUrl;
+            mediaCard.appendChild(imgElement);
+        }
 
         const titleElement = document.createElement('h3');
         titleElement.textContent = title;
@@ -44,13 +54,11 @@ function displayMedia(mediaRecords) {
         const tagsElement = document.createElement('p');
         tagsElement.textContent = `Tags: ${tags}`;
 
-        mediaCard.appendChild(imgElement);
         mediaCard.appendChild(titleElement);
         mediaCard.appendChild(artistElement);
         mediaCard.appendChild(tagsElement);
         gallery.appendChild(mediaCard);
     });
 }
-
 // Initialize the gallery by fetching media from Airtable
 fetchMedia();
