@@ -1,5 +1,5 @@
-const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453';  // Replace with your new Airtable Personal Access Token
-const baseId = 'app5SXCJbXkjbyzws'; // Your Airtable Base ID
+const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453';  // Airtable Personal Access Token
+const baseId = 'app5SXCJbXkjbyzws'; // Airtable Base ID
 const tableName = 'Gallery'; // The table name in Airtable
 const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
@@ -32,17 +32,19 @@ function displayMedia(mediaRecords) {
         const mediaCard = document.createElement('div');
         mediaCard.classList.add('image-card');
 
-        if (mediaUrl.endsWith('.mp4')) {
+        if (mediaUrl && mediaUrl.endsWith('.mp4')) {
             // If it's a video
             const videoElement = document.createElement('video');
             videoElement.src = mediaUrl;
             videoElement.controls = true;
             mediaCard.appendChild(videoElement);
-        } else {
+        } else if (mediaUrl) {
             // For images and gifs
             const imgElement = document.createElement('img');
             imgElement.src = mediaUrl;
             mediaCard.appendChild(imgElement);
+        } else {
+            console.warn('Missing media URL for record:', title);
         }
 
         const titleElement = document.createElement('h3');
@@ -60,5 +62,6 @@ function displayMedia(mediaRecords) {
         gallery.appendChild(mediaCard);
     });
 }
+
 // Initialize the gallery by fetching media from Airtable
 fetchMedia();
