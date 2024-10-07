@@ -132,4 +132,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show detailed view in modal
     function showDetailedView(record) {
         const mediaUrl = record.fields.CloudinaryURL;
-        const title​⬤
+        const title = record.fields.Title;
+        const artist = record.fields.Artist;
+        const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
+
+        // Populate modal with metadata
+        modalTitle.textContent = title;
+        modalArtist.textContent = `Artist: ${artist}`;
+        modalTags.textContent = `Tags: ${tags}`;
+
+        // Show image or video in the modal
+        if (mediaUrl.endsWith('.mp4')) {
+            modalImage.style.display = 'none';
+            modalVideo.style.display = 'block';
+            modalVideo.src = mediaUrl;
+        } else {
+            modalVideo.style.display = 'none';
+            modalImage.style.display = 'block';
+            modalImage.src = mediaUrl;
+        }
+
+        // Set the URL for copy/download functionality
+        copyButton.onclick = () => copyToClipboard(mediaUrl);
+        downloadButton.onclick = () => downloadMedia(mediaUrl, title);
+
+        // Show the modal
+        modal.style.display = 'block';
+    }
+
+    // Copy URL to clipboard
+    function copyToClipboard(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('URL copied to clipboard');
+        });
+    }
+
+    // Download media file
+    function downloadMedia(url, title) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = title;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Initialize the gallery by fetching media from Airtable
+    fetchMedia();
+});
