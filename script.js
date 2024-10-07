@@ -20,6 +20,20 @@ function fetchMedia() {
     .catch(error => console.error('Error fetching data:', error));
 }
 
+// Get click count from localStorage
+function getClickCount(id) {
+    const count = localStorage.getItem(id);
+    return count ? parseInt(count) : 0;  // Return 0 if no count exists
+}
+
+// Increment click count and store in localStorage
+function incrementClickCount(id) {
+    let count = getClickCount(id);
+    count++;
+    localStorage.setItem(id, count);
+    return count;
+}
+
 // Display media in the gallery
 function displayMedia(mediaRecords) {
     gallery.innerHTML = '';  // Clear previous gallery content
@@ -28,14 +42,15 @@ function displayMedia(mediaRecords) {
         const title = record.fields.Title;
         const artist = record.fields.Artist;
         const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
-        const mediaUrl = record.fields.CloudinaryURL;
+        const mediaUrl = record.fields.CloudinaryURL;  // Check if this matches your Airtable field name exactly
+        const recordId = record.id;  // Unique record ID to use as click counter key
 
         console.log('Processing record:', title, mediaUrl);  // Logs every record processed
 
         const mediaCard = document.createElement('div');
         mediaCard.classList.add('image-card');
 
-        // Check if mediaUrl is defined and not empty before using it
+        // Create media elements
         if (mediaUrl) {
             if (mediaUrl.endsWith('.mp4')) {
                 const videoElement = document.createElement('video');
@@ -60,9 +75,24 @@ function displayMedia(mediaRecords) {
         const tagsElement = document.createElement('p');
         tagsElement.textContent = `Tags: ${tags}`;
 
+        // Click counter display
+        const clickCounter = document.createElement('p');
+        clickCounter.classList.add('click-counter');
+        clickCounter.textContent = `Clicks: ${getClickCount(recordId)}`;
+
+        // Add click event listener to media card
+        mediaCard.addEventListener('click', () => {
+            const updatedCount = incrementClickCount(recordId);  // Increment the click count
+            clickCounter.textContent = `Clicks: ${updatedCount}`;  // Update displayed count
+        });
+
+        // Append elements to media card
         mediaCard.appendChild(titleElement);
         mediaCard.appendChild(artistElement);
         mediaCard.appendChild(tagsElement);
+        mediaCard.appendChild(clickCounter);
+
+        // Append media card to gallery
         gallery.appendChild(mediaCard);
     });
 }
