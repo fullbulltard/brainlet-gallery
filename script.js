@@ -4,6 +4,14 @@ const tableName = 'Gallery'; // The table name in Airtable
 const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 const gallery = document.getElementById('gallery');
+const modal = document.getElementById('mediaModal');
+const modalImage = document.getElementById('modalImage');
+const modalVideo = document.getElementById('modalVideo');
+const modalTitle = document.getElementById('modalTitle');
+const modalArtist = document.getElementById('modalArtist');
+const modalTags = document.getElementById('modalTags');
+const copyButton = document.getElementById('copyButton');
+const downloadButton = document.getElementById('downloadButton');
 
 // Create an object to track if an item has been clicked during the current session
 let clickTracker = {};
@@ -91,6 +99,9 @@ function displayMedia(mediaRecords) {
                 clickCounter.textContent = `Clicks: ${updatedCount}`;  // Update displayed count
                 clickTracker[recordId] = true;  // Mark this item as clicked for the session
             }
+
+            // Populate modal with data
+            showDetailedView(record);
         });
 
         // Append elements to media card
@@ -104,5 +115,49 @@ function displayMedia(mediaRecords) {
     });
 }
 
-// Initialize the gallery by fetching media from Airtable
-fetchMedia();
+// Show detailed view in modal
+function showDetailedView(record) {
+    const mediaUrl = record.fields.CloudinaryURL;
+    const title = record.fields.Title;
+    const artist = record.fields.Artist;
+    const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
+
+    // Populate modal with metadata
+    modalTitle.textContent = title;
+    modalArtist.textContent = `Artist: ${artist}`;
+    modalTags.textContent = `Tags: ${tags}`;
+
+    // Show image or video in the modal
+    if (mediaUrl.endsWith('.mp4')) {
+        modalImage.style.display = 'none';
+        modalVideo.style.display = 'block';
+        modalVideo.src = mediaUrl;
+    } else {
+        modalVideo.style.display = 'none';
+        modalImage.style.display = 'block';
+        modalImage.src = mediaUrl;
+    }
+
+    // Set the URL for copy/download functionality
+    copyButton.onclick = () => copyToClipboard(mediaUrl);
+    downloadButton.onclick = () => downloadMedia(mediaUrl, title);
+
+    // Show the modal
+    modal.style.display = 'block';
+}
+
+// Copy URL to clipboard
+function copyToClipboard(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        alert('URL copied to clipboard');
+    });
+}
+
+// Download media file
+function downloadMedia(url, title) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = title;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild
