@@ -5,6 +5,9 @@ const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 const gallery = document.getElementById('gallery');
 
+// Create an object to track if an item has been clicked during the current session
+let clickTracker = {};
+
 // Fetch data from Airtable using Personal Access Token
 function fetchMedia() {
     fetch(airtableUrl, {
@@ -42,7 +45,7 @@ function displayMedia(mediaRecords) {
         const title = record.fields.Title;
         const artist = record.fields.Artist;
         const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
-        const mediaUrl = record.fields.CloudinaryURL;  // Check if this matches your Airtable field name exactly
+        const mediaUrl = record.fields.CloudinaryURL;
         const recordId = record.id;  // Unique record ID to use as click counter key
 
         console.log('Processing record:', title, mediaUrl);  // Logs every record processed
@@ -82,8 +85,12 @@ function displayMedia(mediaRecords) {
 
         // Add click event listener to media card
         mediaCard.addEventListener('click', () => {
-            const updatedCount = incrementClickCount(recordId);  // Increment the click count
-            clickCounter.textContent = `Clicks: ${updatedCount}`;  // Update displayed count
+            // Only increment if this item hasn't been clicked in the current session
+            if (!clickTracker[recordId]) {
+                const updatedCount = incrementClickCount(recordId);  // Increment the click count
+                clickCounter.textContent = `Clicks: ${updatedCount}`;  // Update displayed count
+                clickTracker[recordId] = true;  // Mark this item as clicked for the session
+            }
         });
 
         // Append elements to media card
