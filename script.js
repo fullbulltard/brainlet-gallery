@@ -156,3 +156,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalImage.src = mediaUrl;
             }
             copyButton.textContent = mediaUrl.endsWith('.gif') ? 'Copy GIF Link' : 'Copy Image Link';  // Set button text for image/GIF
+        }
+
+        // Set the URL for copy/download functionality
+        copyButton.onclick = () => copyToClipboard(mediaUrl);
+        downloadButton.onclick = () => downloadMedia(mediaUrl, title);
+
+        // Show the modal
+        modal.style.display = 'block';
+    }
+
+    // Copy URL to clipboard
+    function copyToClipboard(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('URL copied to clipboard');
+        });
+    }
+
+    // Download media file
+    function downloadMedia(url, title) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = title;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Initialize the gallery by fetching media from Airtable
+    fetchMedia();
+});
