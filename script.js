@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Create an object to track if an item has been clicked during the current session
+    let clickTracker = {};
+
     // Fetch data from Airtable using Personal Access Token
     function fetchMedia() {
         fetch(airtableUrl, {
@@ -42,6 +45,20 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching data:', error));
     }
 
+    // Get click count from localStorage
+    function getClickCount(id) {
+        const count = localStorage.getItem(id);
+        return count ? parseInt(count) : 0;  // Return 0 if no count exists
+    }
+
+    // Increment click count and store in localStorage
+    function incrementClickCount(id) {
+        let count = getClickCount(id);
+        count++;
+        localStorage.setItem(id, count);
+        return count;
+    }
+
     // Display media in the gallery
     function displayMedia(mediaRecords) {
         gallery.innerHTML = '';  // Clear previous gallery content
@@ -51,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const artist = record.fields.Artist;
             const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
             const mediaUrl = record.fields.CloudinaryURL;
+            const recordId = record.id;  // Unique record ID to use as click counter key
 
             const mediaCard = document.createElement('div');
             mediaCard.classList.add('image-card');
@@ -76,14 +94,83 @@ document.addEventListener('DOMContentLoaded', function() {
             const tagsElement = document.createElement('p');
             tagsElement.textContent = `Tags: ${tags}`;
 
+            // Click counter display
+            const clickCounter = document.createElement('p');
+            clickCounter.classList.add('click-counter');
+            clickCounter.textContent = `Clicks: ${getClickCount(recordId)}`;
+
+            // Add click event listener to media card
+            mediaCard.addEventListener('click', () => {
+                // Only increment if this item hasn't been clicked in the current session
+                if (!clickTracker[recordId]) {
+                    const updatedCount = incrementClickCount(recordId);  // Increment the click count
+                    clickCounter.textContent = `Clicks: ${updatedCount}`;  // Update displayed count
+                    clickTracker[recordId] = true;  // Mark this item as clicked for the session
+                }
+
+                // Populate modal with data
+                showDetailedView(record);
+            });
+
             // Append elements to media card
             mediaCard.appendChild(titleElement);
             mediaCard.appendChild(artistElement);
             mediaCard.appendChild(tagsElement);
+            mediaCard.appendChild(clickCounter);
 
             // Append media card to gallery
             gallery.appendChild(mediaCard);
         });
+    }
+
+    // Show detailed view in modal
+    function showDetailedView(record) {
+        const mediaUrl = record.fields.CloudinaryURL;
+        const title = record.fields.Title;
+        const artist = record.fields.Artist;
+        const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
+
+        // Populate modal with metadata
+        modalTitle.textContent = title;
+        modalArtist.textContent = `Artist: ${artist}`;
+        modalTags.textContent = `Tags: ${tags}`;
+
+        // Check if modalImage and modalVideo exist before using them
+        if (mediaUrl.endsWith('.mp4')) {
+            modalImage.style.display = 'none';
+            modalVideo.style.display = 'block';
+            modalVideo.src = mediaUrl;
+            copyButton.textContent = 'Copy Video Link';  // Set button text for video
+        } else {
+            modalVideo.style.display = 'none';
+            modalImage.style.display = 'block';
+            modalImage.src = mediaUrl;
+            copyButton.textContent = mediaUrl.endsWith('.gif') ? 'Copy GIF Link' : 'Copy Image Link';  // Set button text for image/GIF
+        }
+
+        // Set the URL for copy/download functionality
+        copyButton.onclick = () => copyToClipboard(mediaUrl);
+        downloadButton.onclick = () => downloadMedia(mediaUrl, title);
+
+        // Show the modal
+        modal.style.display = 'block';
+    }
+
+    // Copy URL to clipboard
+    function copyToClipboard(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('URL copied to clipboard');
+        });
+    }
+
+    // Download media file
+    function downloadMedia(url, title) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = title;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 
     // Initialize the gallery by fetching media from Airtable
