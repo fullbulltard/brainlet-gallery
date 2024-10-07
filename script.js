@@ -164,7 +164,7 @@ function downloadMedia(url, title) {
 }
 
 // Close the modal when clicking the "X" button
-const closeModal = document.querySelector('.close');
+const closeModal = document.querySelector('#mediaModal .close');
 closeModal.onclick = () => {
     modal.style.display = 'none';
 };
