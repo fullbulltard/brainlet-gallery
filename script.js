@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const apiKey = 'your_airtable_personal_access_token'; // Add your Airtable API token here
+  const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453'; // Add your Airtable API token here
   const baseId = 'app5SXCJbXkjbyzws'; // Your Airtable base ID
   const tableName = 'Gallery'; // Your Airtable table name
 
