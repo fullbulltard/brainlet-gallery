@@ -1,178 +1,157 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453';  // Airtable Personal Access Token
-    const baseId = 'app5SXCJbXkjbyzws'; // Airtable Base ID
-    const tableName = 'Gallery'; // The table name in Airtable
-    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+document.addEventListener('DOMContentLoaded', function () {
+  const apiKey = 'your_airtable_personal_access_token'; // Add your Airtable API token here
+  const baseId = 'app5SXCJbXkjbyzws'; // Your Airtable base ID
+  const tableName = 'Gallery'; // Your Airtable table name
 
-    const gallery = document.getElementById('gallery');
-    const modal = document.getElementById('mediaModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalVideo = document.getElementById('modalVideo');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalArtist = document.getElementById('modalArtist');
-    const modalTags = document.getElementById('modalTags');
-    const copyButton = document.getElementById('copyButton');
-    const downloadButton = document.getElementById('downloadButton');
+  const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+  const gallerySection = document.getElementById('gallery');
 
-    // Close the modal when clicking the "X" button
-    const closeModal = document.querySelector('#mediaModal .close');
-    closeModal.onclick = () => {
+  // Function to fetch records from Airtable
+  async function fetchRecords() {
+    try {
+      const response = await fetch(airtableUrl, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Fetched data from Airtable:', data);
+      displayMedia(data.records);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  // Function to display media records in the gallery
+  function displayMedia(records) {
+    records.forEach(record => {
+      const mediaUrl = record.fields['CloudinaryURL'];
+      const title = record.fields['Title'];
+      const artist = record.fields['Artist'] || 'unknown';
+      const tags = record.fields['Tags'] || 'unknown';
+      let clickCount = record.fields['Clicks'] || 0;
+
+      // Check if the mediaUrl exists before using it
+      if (mediaUrl && typeof mediaUrl === 'string') {
+        let mediaType = 'unknown';
+
+        if (mediaUrl.endsWith('.jpg') || mediaUrl.endsWith('.jpeg') || mediaUrl.endsWith('.png')) {
+          mediaType = 'image';
+        } else if (mediaUrl.endsWith('.gif')) {
+          mediaType = 'gif';
+        } else if (mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm')) {
+          mediaType = 'video';
+        }
+
+        // Create a media card for the gallery
+        const mediaCard = document.createElement('div');
+        mediaCard.classList.add('media-card');
+        mediaCard.innerHTML = `
+          <div class="media-content">
+            ${mediaType === 'image' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
+            ${mediaType === 'gif' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
+            ${mediaType === 'video' ? `<video controls><source src="${mediaUrl}" type="video/mp4"></video>` : ''}
+          </div>
+          <div class="media-info">
+            <h3>${title}</h3>
+            <p>Artist: ${artist}</p>
+            <p>Tags: ${tags}</p>
+            <p>Clicks: ${clickCount}</p>
+          </div>
+        `;
+
+        // Increment click count on click
+        mediaCard.addEventListener('click', async () => {
+          clickCount++;
+          mediaCard.querySelector('.media-info p:nth-child(4)').textContent = `Clicks: ${clickCount}`;
+          await updateClickCount(record.id, clickCount);
+          showDetailView(title, artist, tags, mediaUrl, mediaType);
+        });
+
+        gallerySection.appendChild(mediaCard);
+      } else {
+        console.warn(`Missing media URL for record: ${title}`);
+      }
+    });
+  }
+
+  // Function to update the click count in Airtable
+  async function updateClickCount(recordId, clickCount) {
+    try {
+      const response = await fetch(`${airtableUrl}/${recordId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fields: {
+            Clicks: clickCount
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error updating click count:', error);
+    }
+  }
+
+  // Function to show the detailed view of the media
+  function showDetailView(title, artist, tags, mediaUrl, mediaType) {
+    const modal = document.getElementById('detail-modal');
+    const modalContent = modal.querySelector('.modal-content');
+
+    modalContent.innerHTML = `
+      <h3>${title}</h3>
+      <p>Artist: ${artist}</p>
+      <p>Tags: ${tags}</p>
+      ${mediaType === 'image' || mediaType === 'gif' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
+      ${mediaType === 'video' ? `<video controls><source src="${mediaUrl}" type="video/mp4"></video>` : ''}
+      <button id="copy-url-button">Copy ${mediaType === 'video' ? 'Video' : 'Image/GIF'} Link</button>
+      <button id="download-button">Download</button>
+    `;
+
+    modal.style.display = 'block';
+
+    const copyUrlButton = document.getElementById('copy-url-button');
+    const downloadButton = document.getElementById('download-button');
+
+    copyUrlButton.onclick = () => copyToClipboard(mediaUrl);
+    downloadButton.onclick = () => downloadMedia(mediaUrl);
+
+    modal.onclick = function (event) {
+      if (event.target === modal) {
         modal.style.display = 'none';
+      }
     };
+  }
 
-    // Close the modal when clicking outside of it
-    window.onclick = (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
+  // Function to copy the media URL to clipboard
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Link copied to clipboard!');
+    }).catch(err => {
+      console.error('Error copying to clipboard:', err);
+      alert('Failed to copy link.');
+    });
+  }
 
-    // Create an object to track if an item has been clicked during the current session
-    let clickTracker = {};
+  // Function to download the media
+  function downloadMedia(url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'download';
+    link.click();
+  }
 
-    // Fetch data from Airtable using Personal Access Token
-    function fetchMedia() {
-        fetch(airtableUrl, {
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Fetched data from Airtable:', data);  // Logs the full Airtable response
-            displayMedia(data.records);  // Display media items in the gallery
-        })
-        .catch(error => console.error('Error fetching data:', error));
-    }
-
-    // Get click count from localStorage
-    function getClickCount(id) {
-        const count = localStorage.getItem(id);
-        return count ? parseInt(count) : 0;  // Return 0 if no count exists
-    }
-
-    // Increment click count and store in localStorage
-    function incrementClickCount(id) {
-        let count = getClickCount(id);
-        count++;
-        localStorage.setItem(id, count);
-        return count;
-    }
-
-    // Display media in the gallery
-    function displayMedia(mediaRecords) {
-        gallery.innerHTML = '';  // Clear previous gallery content
-
-        mediaRecords.forEach(record => {
-            const title = record.fields.Title;
-            const artist = record.fields.Artist;
-            const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
-            const mediaUrl = record.fields.CloudinaryURL;
-            const recordId = record.id;  // Unique record ID to use as click counter key
-
-            const mediaCard = document.createElement('div');
-            mediaCard.classList.add('image-card');
-
-            // Create media elements
-            if (mediaUrl.endsWith('.mp4')) {
-                const videoElement = document.createElement('video');
-                videoElement.src = mediaUrl;
-                videoElement.controls = true;
-                mediaCard.appendChild(videoElement);
-            } else {
-                const imgElement = document.createElement('img');
-                imgElement.src = mediaUrl;
-                mediaCard.appendChild(imgElement);
-            }
-
-            const titleElement = document.createElement('h3');
-            titleElement.textContent = title;
-
-            const artistElement = document.createElement('p');
-            artistElement.textContent = `Artist: ${artist}`;
-
-            const tagsElement = document.createElement('p');
-            tagsElement.textContent = `Tags: ${tags}`;
-
-            // Click counter display
-            const clickCounter = document.createElement('p');
-            clickCounter.classList.add('click-counter');
-            clickCounter.textContent = `Clicks: ${getClickCount(recordId)}`;
-
-            // Add click event listener to media card
-            mediaCard.addEventListener('click', () => {
-                // Only increment if this item hasn't been clicked in the current session
-                if (!clickTracker[recordId]) {
-                    const updatedCount = incrementClickCount(recordId);  // Increment the click count
-                    clickCounter.textContent = `Clicks: ${updatedCount}`;  // Update displayed count
-                    clickTracker[recordId] = true;  // Mark this item as clicked for the session
-                }
-
-                // Populate modal with data
-                showDetailedView(record);
-            });
-
-            // Append elements to media card
-            mediaCard.appendChild(titleElement);
-            mediaCard.appendChild(artistElement);
-            mediaCard.appendChild(tagsElement);
-            mediaCard.appendChild(clickCounter);
-
-            // Append media card to gallery
-            gallery.appendChild(mediaCard);
-        });
-    }
-
-    // Show detailed view in modal
-    function showDetailedView(record) {
-        const mediaUrl = record.fields.CloudinaryURL;
-        const title = record.fields.Title;
-        const artist = record.fields.Artist;
-        const tags = record.fields.Tags ? record.fields.Tags.join(', ') : '';
-
-        // Populate modal with metadata
-        modalTitle.textContent = title;
-        modalArtist.textContent = `Artist: ${artist}`;
-        modalTags.textContent = `Tags: ${tags}`;
-
-        // Check if modalImage and modalVideo exist before using them
-        if (mediaUrl.endsWith('.mp4')) {
-            modalImage.style.display = 'none';
-            modalVideo.style.display = 'block';
-            modalVideo.src = mediaUrl;
-            copyButton.textContent = 'Copy Video Link';  // Set button text for video
-        } else {
-            modalVideo.style.display = 'none';
-            modalImage.style.display = 'block';
-            modalImage.src = mediaUrl;
-            copyButton.textContent = mediaUrl.endsWith('.gif') ? 'Copy GIF Link' : 'Copy Image Link';  // Set button text for image/GIF
-        }
-
-        // Set the URL for copy/download functionality
-        copyButton.onclick = () => copyToClipboard(mediaUrl);
-        downloadButton.onclick = () => downloadMedia(mediaUrl, title);
-
-        // Show the modal
-        modal.style.display = 'block';
-    }
-
-    // Copy URL to clipboard
-    function copyToClipboard(url) {
-        navigator.clipboard.writeText(url).then(() => {
-            alert('URL copied to clipboard');
-        });
-    }
-
-    // Download media file
-    function downloadMedia(url, title) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = title;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-
-    // Initialize the gallery by fetching media from Airtable
-    fetchMedia();
+  // Fetch records on page load
+  fetchRecords();
 });
