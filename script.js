@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
   const gallerySection = document.getElementById('gallery');
+  let clickedImages = new Set(); // Track images clicked during the session
 
   // Function to fetch records from Airtable
   async function fetchRecords() {
@@ -48,29 +49,25 @@ document.addEventListener('DOMContentLoaded', function () {
           mediaType = 'video';
         }
 
-        // Create a media card for the gallery
+        // Create a media card for the gallery (without title, artist, tags, clicks)
         const mediaCard = document.createElement('div');
-        mediaCard.classList.add('media-card');
+        mediaCard.classList.add('media-card'); // Assign media-card class for styling
         mediaCard.innerHTML = `
           <div class="media-content">
             ${mediaType === 'image' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
             ${mediaType === 'gif' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
             ${mediaType === 'video' ? `<video controls><source src="${mediaUrl}" type="video/mp4"></video>` : ''}
           </div>
-          <div class="media-info">
-            <h3>${title}</h3>
-            <p>Artist: ${artist}</p>
-            <p>Tags: ${tags}</p>
-            <p>Clicks: ${clickCount}</p>
-          </div>
         `;
 
-        // Increment click count on click
+        // Increment click count on click, limit to once per page load
         mediaCard.addEventListener('click', async () => {
-          clickCount++;
-          mediaCard.querySelector('.media-info p:nth-child(4)').textContent = `Clicks: ${clickCount}`;
-          await updateClickCount(record.id, clickCount);
-          showDetailView(title, artist, tags, mediaUrl, mediaType);
+          if (!clickedImages.has(record.id)) {
+            clickedImages.add(record.id);
+            clickCount++;
+            await updateClickCount(record.id, clickCount);
+            showDetailView(title, artist, tags, mediaUrl, mediaType, clickCount);
+          }
         });
 
         gallerySection.appendChild(mediaCard);
@@ -105,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Function to show the detailed view of the media
-  function showDetailView(title, artist, tags, mediaUrl, mediaType) {
+  function showDetailView(title, artist, tags, mediaUrl, mediaType, clickCount) {
     const modal = document.getElementById('detail-modal');
     const modalContent = modal.querySelector('.modal-content');
 
@@ -113,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
       <h3>${title}</h3>
       <p>Artist: ${artist}</p>
       <p>Tags: ${tags}</p>
+      <p>Clicks: ${clickCount}</p>
       ${mediaType === 'image' || mediaType === 'gif' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
       ${mediaType === 'video' ? `<video controls><source src="${mediaUrl}" type="video/mp4"></video>` : ''}
       <button id="copy-url-button">Copy ${mediaType === 'video' ? 'Video' : 'Image/GIF'} Link</button>
