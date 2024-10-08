@@ -1,141 +1,87 @@
-/* Base styling for the entire page */
 body {
-    font-family: 'Patrick Hand', sans-serif;
-    background-color: #ffffff;  /* Set background to white */
-    color: #000000;  /* Black text color for contrast */
-    margin: 0;
-    padding: 0;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
+  text-align: center;
 }
 
-/* Main title styling with comic-style font */
-.main-title {
-    font-family: 'Patrick Hand', sans-serif;
-    font-size: 5rem;
-    text-transform: uppercase;
-    color: #32ff00;  /* Comic-like green color for title */
-    text-align: center;
-    margin: 0;
-    padding: 10px;
-    letter-spacing: 5px;
+header {
+  background-color: #333;
+  padding: 20px;
+  color: #fff;
 }
 
-/* Subtitle under the main title */
-.subtitle {
-    font-family: 'Patrick Hand', sans-serif;
-    font-size: 2rem;
-    color: #ff2d00;  /* Comic-like red color for subtitle */
-    text-align: center;
-    margin-top: 0;
-    letter-spacing: 3px;
+h1 {
+  font-size: 48px;
+  color: #32CD32; /* Bright green */
 }
 
-/* Search bar input styling */
-input[type="text"] {
-    font-family: 'Patrick Hand', sans-serif;
-    font-size: 1rem;
-    width: 60%;
-    padding: 10px;
-    margin: 20px auto;
-    display: block;
-    border: 1px solid #ccc;  /* Light gray border for the search bar */
-    border-radius: 5px;
-    background-color: #f9f9f9;  /* Light background for the input */
-    color: #000;  /* Black text */
+#search {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  width: 80%;
+  margin-top: 20px;
 }
 
-/* Gallery layout using CSS Grid */
 #gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-gap: 20px;
-    padding: 20px;
-    background-color: #ffffff;  /* White gallery background */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
 
-/* Image card styling */
-.image-card {
-    background-color: #f9f9f9;  /* Light background for image cards */
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Lighter shadow */
-    overflow: hidden;
-    transition: transform 0.2s ease;
+.media-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.image-card:hover {
-    transform: scale(1.05);  /* Slight zoom effect on hover */
+.media-content img, .media-content video {
+  width: 100%;
+  border-radius: 8px;
 }
 
-.image-card img {
-    width: 100%;
-    height: auto;
-    border-radius: 5px;
+.modal-content img, .modal-content video {
+  width: 100%;
+  border-radius: 8px;
 }
 
-.image-card h3 {
-    font-family: 'Patrick Hand', sans-serif;
-    font-size: 1.2rem;
-    text-align: center;
-    color: #000000;  /* Black text for image title */
-    margin: 10px 0 0 0;
-}
-
-/* The Modal (background) */
-.modal {
-  display: none;  /* Hidden by default */
-  position: fixed; 
-  z-index: 1; /* Sit on top */
+#detail-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
   left: 0;
   top: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
-  overflow: auto; 
-  background-color: rgb(0,0,0); 
-  background-color: rgba(0,0,0,0.8); /* Black background with opacity */
-  padding-top: 60px;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Modal Content */
 .modal-content {
-  background-color: #fefefe;
+  background-color: #fff;
   margin: 5% auto;
   padding: 20px;
-  border: 1px solid #888;
   width: 80%;
-  max-width: 600px; /* Responsive width */
+  max-width: 600px;
+  border-radius: 8px;
 }
 
-/* Close Button */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover, .close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* Modal Image */
-.modal-image, .modal-video {
-  width: 100%;
-  height: auto;
-  margin-bottom: 10px;
-}
-
-/* Buttons */
 button {
-  padding: 10px 15px;
-  margin: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #32CD32; /* Bright green */
   border: none;
-  background-color: #333;
+  border-radius: 8px;
   color: white;
   cursor: pointer;
+  margin-top: 20px;
 }
 
 button:hover {
-  background-color: #555;
+  background-color: #228B22; /* Darker green */
 }

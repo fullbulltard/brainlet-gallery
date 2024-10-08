@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453'; // Add your Airtable API token here
+  const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453'; // Airtable API token
   const baseId = 'app5SXCJbXkjbyzws'; // Your Airtable base ID
   const tableName = 'Gallery'; // Your Airtable table name
 
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const gallerySection = document.getElementById('gallery');
   let clickedImages = new Set(); // Track images clicked during the session
 
-  // Function to fetch records from Airtable
+  // Fetch records from Airtable
   async function fetchRecords() {
     try {
       const response = await fetch(airtableUrl, {
@@ -28,8 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Function to display media records in the gallery
+  // Display media records in the gallery
   function displayMedia(records) {
+    gallerySection.innerHTML = ''; // Clear the gallery before populating
+
     records.forEach(record => {
       const mediaUrl = record.fields['CloudinaryURL'];
       const title = record.fields['Title'];
@@ -37,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const tags = record.fields['Tags'] || 'unknown';
       let clickCount = record.fields['Clicks'] || 0;
 
-      // Check if the mediaUrl exists before using it
       if (mediaUrl && typeof mediaUrl === 'string') {
         let mediaType = 'unknown';
 
@@ -49,9 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
           mediaType = 'video';
         }
 
-        // Create a media card for the gallery (without title, artist, tags, clicks)
+        // Create a media card for the gallery
         const mediaCard = document.createElement('div');
-        mediaCard.classList.add('media-card'); // Assign media-card class for styling
+        mediaCard.classList.add('media-card'); 
         mediaCard.innerHTML = `
           <div class="media-content">
             ${mediaType === 'image' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
@@ -77,20 +78,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Function to update the click count in Airtable
+  // Update the click count in Airtable
   async function updateClickCount(recordId, clickCount) {
     try {
       const response = await fetch(`${airtableUrl}/${recordId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           fields: {
-            Clicks: clickCount
-          }
-        })
+            Clicks: clickCount,
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -101,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Function to show the detailed view of the media
+  // Show the detailed view of the media in a modal
   function showDetailView(title, artist, tags, mediaUrl, mediaType, clickCount) {
     const modal = document.getElementById('detail-modal');
     const modalContent = modal.querySelector('.modal-content');
@@ -132,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
-  // Function to copy the media URL to clipboard
+  // Copy the media URL to clipboard
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
       alert('Link copied to clipboard!');
@@ -142,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Function to download the media
+  // Download the media
   function downloadMedia(url) {
     const link = document.createElement('a');
     link.href = url;
