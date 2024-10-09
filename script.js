@@ -4,9 +4,9 @@ const baseId = 'app5SXCJbXkjbyzws';
 const tableName = 'Gallery';
 const viewName = 'Grid view';
 
-async function fetchRecords() {
-    const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}`;
-
+// Function to fetch records from Airtable with pagination
+async function fetchRecords(offset = '') {
+    const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}&offset=${offset}`;
     const response = await fetch(url, {
         headers: {
             Authorization: `Bearer ${apiKey}`
@@ -24,11 +24,17 @@ async function fetchRecords() {
     // Ensure data.records exists and is iterable
     if (data.records && Array.isArray(data.records)) {
         displayMedia(data.records);
+
+        // If there's more data, continue fetching
+        if (data.offset) {
+            fetchRecords(data.offset);
+        }
     } else {
         console.error('Error fetching data: data.records is not iterable or missing');
     }
 }
 
+// Function to display media in the gallery
 function displayMedia(records) {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = ''; // Clear the gallery
@@ -48,7 +54,7 @@ function displayMedia(records) {
             imgElement.src = mediaUrl;
             imgElement.alt = title;
             imgElement.classList.add('gallery-image');
-            imgElement.onclick = () => showDetailView(title, artist, tags, clicks, mediaUrl);
+            imgElement.onclick = () => showDetailView(artist, tags, clicks, mediaUrl);
 
             mediaCard.appendChild(imgElement);
             gallery.appendChild(mediaCard);
@@ -56,6 +62,7 @@ function displayMedia(records) {
     });
 }
 
+// Function to show details in modal
 function showDetailView(artist, tags, clicks, mediaUrl) {
     const modal = document.getElementById('detailModal');
     const modalArtist = document.getElementById('modalArtist');
@@ -71,7 +78,7 @@ function showDetailView(artist, tags, clicks, mediaUrl) {
     modal.style.display = 'block';
 }
 
-// Close modal
+// Close modal function
 function closeModal() {
     const modal = document.getElementById('detailModal');
     modal.style.display = 'none';
