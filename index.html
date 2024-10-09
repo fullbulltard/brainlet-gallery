@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brainlet Gallery</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainlet Gallery</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Brainlet Gallery</h1>
-    <input type="text" id="search" placeholder="Search memes...">
-  </header>
+    <header>
+        <h1>Brainlet Gallery</h1>
+        <input type="text" id="search" placeholder="Search memes...">
+    </header>
 
-  <section id="gallery"></section>
+    <section id="gallery" class="gallery"></section>
 
-  <!-- Modal for detailed view -->
-  <div id="modal-background" style="display: none;"></div>
-  <div id="modal" style="display: none;">
-      <div id="modal-close">X</div>
-      <div id="modal-content">
-          <h1 id="modal-title">Title</h1>
-          <p id="modal-artist">Artist: Artist Name</p>
-          <p id="modal-tags">Tags: Tags List</p>
-          <p id="modal-clicks">Clicks: Click Count</p>
-          <img id="modal-image" src="image-url" alt="Modal Image" />
-      </div>
-  </div>
+    <!-- Modal for media detail view -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Title</h2>
+            <p id="modalArtist">Artist: Artist Name</p>
+            <p id="modalTags">Tags: Tags List</p>
+            <p id="modalClicks">Clicks: Click Count</p>
+            <img id="modalImage" src="#" alt="Modal Image">
+        </div>
+    </div>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
