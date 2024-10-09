@@ -1,85 +1,87 @@
-const baseId = 'app5SXCJbXkjbyzws'; // Replace with your Airtable base ID
-const tableName = 'Gallery'; // Replace with your Airtable table name
-const viewName = 'Grid view'; // Replace with your Airtable view name
-const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; // Replace with your Airtable PAT
+// Airtable configuration
+const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; // Your Airtable personal access token
+const baseId = 'app5SXCJbXkjbyzws'; // Your Airtable Base ID
+const tableName = 'Gallery';
+const viewName = 'Grid view';
 
-const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}`;
+async function fetchRecords() {
+    const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}`;
 
-const options = {
-  headers: {
-    Authorization: `Bearer ${apiKey}`,  // Send the PAT as a Bearer token
-  },
-};
+    const response = await fetch(url, {
+        headers: {
+            Authorization: `Bearer ${apiKey}`
+        }
+    });
 
-fetch(url, options)
-  .then(response => response.json())
-  .then(data => {
+    if (!response.ok) {
+        console.error('Error fetching data:', response.statusText);
+        return;
+    }
+
+    const data = await response.json();
     console.log('Fetched data from Airtable:', data);
-    // Process the fetched data
-  })
-  .catch(error => console.error('Error fetching data:', error));
+
+    // Ensure data.records exists and is iterable
+    if (data.records && Array.isArray(data.records)) {
+        displayMedia(data.records);
+    } else {
+        console.error('Error fetching data: data.records is not iterable or missing');
+    }
+}
 
 function displayMedia(records) {
     const gallery = document.getElementById('gallery');
-    gallery.innerHTML = ''; // Clear previous records
+    gallery.innerHTML = ''; // Clear the gallery
 
     records.forEach(record => {
-        const fields = record.fields;
-        console.log('Processing record:', fields); // Log each record's fields
+        const mediaUrl = record.fields['Cloudinary URL'];
+        const title = record.fields['Title'];
+        const artist = record.fields['Artist'];
+        const tags = record.fields['Tags'];
+        const clicks = record.fields['Clicks'] || 0;
 
-        if (!fields.CloudinaryURL) {
-            console.warn(`Missing media URL for record: ${fields.Title}`);
-            return;
-        }
+        if (mediaUrl) {
+            const mediaCard = document.createElement('div');
+            mediaCard.classList.add('media-card');
 
-        const mediaItem = document.createElement('div');
-        mediaItem.classList.add('media-item');
-        mediaItem.innerHTML = `
-            <img src="${fields.CloudinaryURL}" alt="${fields.Title}" class="media-thumb">
-            <p>${fields.Title}</p>
-        `;
+            const imgElement = document.createElement('img');
+            imgElement.src = mediaUrl;
+            imgElement.alt = title;
+            imgElement.classList.add('gallery-image');
+            imgElement.onclick = () => showDetailView(title, artist, tags, clicks, mediaUrl);
 
-        mediaItem.onclick = () => showDetailView(fields, record.id);
-        gallery.appendChild(mediaItem);
-
-        // Initialize click count
-        if (!mediaClicks[record.id]) {
-            mediaClicks[record.id] = 0;
+            mediaCard.appendChild(imgElement);
+            gallery.appendChild(mediaCard);
         }
     });
 }
 
-function showDetailView(fields, recordId) {
-    const modal = document.getElementById('detailModal');
-    const modalImage = document.getElementById('modalImage');
+function showDetailView(title, artist, tags, clicks, mediaUrl) {
+    const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modalTitle');
     const modalArtist = document.getElementById('modalArtist');
     const modalTags = document.getElementById('modalTags');
     const modalClicks = document.getElementById('modalClicks');
+    const modalImage = document.getElementById('modalImage');
 
-    modalTitle.textContent = fields.Title || 'Unknown Title';
-    modalArtist.textContent = `Artist: ${fields.Artist || 'Unknown'}`;
-    modalTags.textContent = `Tags: ${fields.Tags || 'None'}`;
-    modalClicks.textContent = `Clicks: ${mediaClicks[recordId]}`;
+    modalTitle.textContent = title;
+    modalArtist.textContent = artist || 'Unknown';
+    modalTags.textContent = tags ? tags.join(', ') : 'None';
+    modalClicks.textContent = clicks;
+    modalImage.src = mediaUrl;
 
-    modalImage.src = fields.CloudinaryURL;
     modal.style.display = 'block';
-
-    mediaClicks[recordId] += 1;
-    modalClicks.textContent = `Clicks: ${mediaClicks[recordId]}`;
 }
 
+// Close modal
 function closeModal() {
-    const modal = document.getElementById('detailModal');
+    const modal = document.getElementById('modal');
     modal.style.display = 'none';
 }
 
-window.onclick = function (event) {
-    const modal = document.getElementById('detailModal');
-    if (event.target === modal) {
-        closeModal();
-    }
-};
+document.getElementById('closeModal').addEventListener('click', closeModal);
 
-// Call to fetch records on page load
-fetchRecords();
+// Fetch the Airtable data on page load
+window.onload = () => {
+    fetchRecords();
+};
