@@ -1,4 +1,4 @@
-const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453'; // Airtable API key
+const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; // Airtable API key
 const baseId = 'app5SXCJbXkjbyzws'; // Airtable Base ID
 const tableName = 'Gallery'; // Airtable Table name
 const viewName = 'Grid view'; // Airtable view
