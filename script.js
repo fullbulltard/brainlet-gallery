@@ -79,9 +79,15 @@ function closeModal() {
     modal.style.display = 'none';
 }
 
-document.getElementById('closeModal').addEventListener('click', closeModal);
+// Ensure DOM content is loaded before attaching event listeners
+document.addEventListener("DOMContentLoaded", function () {
+    const closeModalBtn = document.getElementById('closeModal');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    } else {
+        console.error('Modal close button not found!');
+    }
 
-// Fetch the Airtable data on page load
-window.onload = () => {
+    // Fetch Airtable records once the DOM is ready
     fetchRecords();
-};
+});
