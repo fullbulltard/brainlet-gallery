@@ -10,8 +10,11 @@ let mediaClicks = {};
 async function fetchRecords(offset = '') {
     const fetchUrl = offset ? `${url}&offset=${offset}` : url;
     try {
+        console.log(`Fetching from URL: ${fetchUrl}`); // Log the fetch URL for debugging
         const response = await fetch(fetchUrl);
         const data = await response.json();
+        console.log('Fetched data from Airtable:', data); // Log the fetched data
+
         mediaRecords = [...mediaRecords, ...data.records];
         if (data.offset) {
             await fetchRecords(data.offset); // Paginate and fetch all records
@@ -29,6 +32,8 @@ function displayMedia(records) {
 
     records.forEach(record => {
         const fields = record.fields;
+        console.log('Processing record:', fields); // Log each record's fields
+
         if (!fields.CloudinaryURL) {
             console.warn(`Missing media URL for record: ${fields.Title}`);
             return;
