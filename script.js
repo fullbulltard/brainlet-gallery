@@ -1,6 +1,6 @@
 // Airtable configuration
-const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; // Your Airtable personal access token
-const baseId = 'app5SXCJbXkjbyzws'; // Your Airtable Base ID
+const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; 
+const baseId = 'app5SXCJbXkjbyzws'; 
 const tableName = 'Gallery';
 const viewName = 'Grid view';
 
@@ -34,9 +34,9 @@ function displayMedia(records) {
     gallery.innerHTML = ''; // Clear the gallery
 
     records.forEach(record => {
-        const mediaUrl = record.fields['Cloudinary URL'];
+        const mediaUrl = record.fields['CloudinaryURL'];
         const title = record.fields['Title'];
-        const artist = record.fields['Artist'];
+        const artist = record.fields['Creator'];
         const tags = record.fields['Tags'];
         const clicks = record.fields['Clicks'] || 0;
 
@@ -56,18 +56,16 @@ function displayMedia(records) {
     });
 }
 
-function showDetailView(title, artist, tags, clicks, mediaUrl) {
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
+function showDetailView(artist, tags, clicks, mediaUrl) {
+    const modal = document.getElementById('detailModal');
     const modalArtist = document.getElementById('modalArtist');
     const modalTags = document.getElementById('modalTags');
     const modalClicks = document.getElementById('modalClicks');
     const modalImage = document.getElementById('modalImage');
 
-    modalTitle.textContent = title;
-    modalArtist.textContent = artist || 'Unknown';
-    modalTags.textContent = tags ? tags.join(', ') : 'None';
-    modalClicks.textContent = clicks;
+    modalArtist.textContent = `Creator: ${artist || 'Unknown'}`;
+    modalTags.textContent = `Tags: ${tags ? tags.join(', ') : 'None'}`;
+    modalClicks.textContent = `Views: ${clicks}`;
     modalImage.src = mediaUrl;
 
     modal.style.display = 'block';
@@ -75,7 +73,7 @@ function showDetailView(title, artist, tags, clicks, mediaUrl) {
 
 // Close modal
 function closeModal() {
-    const modal = document.getElementById('modal');
+    const modal = document.getElementById('detailModal');
     modal.style.display = 'none';
 }
 
