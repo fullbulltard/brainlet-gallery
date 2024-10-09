@@ -46,29 +46,48 @@ h1 {
   border-radius: 8px;
 }
 
-.modal-content img, .modal-content video {
-  width: 100%;
-  border-radius: 8px;
+/* General Modal Styling */
+#modal {
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    max-height: 90vh; /* Ensures the modal doesn’t exceed viewport height */
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    overflow-y: auto; /* Enables scrolling if content exceeds modal height */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-#detail-modal {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+/* Modal Content Wrapper */
+#modal-content {
+    max-height: 90vh; /* Limit the height to viewport */
+    overflow-y: auto; /* Scrolls when content exceeds modal height */
 }
 
-.modal-content {
-  background-color: #fff;
-  margin: 5% auto;
-  padding: 20px;
-  width: 80%;
-  max-width: 600px;
-  border-radius: 8px;
+/* Modal Background Overlay */
+#modal-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+/* Close Button */
+#modal-close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
 }
 
 button {
