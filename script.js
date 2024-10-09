@@ -7,10 +7,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const gallerySection = document.getElementById('gallery');
   let clickedImages = new Set(); // Track images clicked during the session
 
-  // Fetch records from Airtable
-  async function fetchRecords() {
+  // Function to fetch all records from Airtable (handles pagination)
+  async function fetchRecords(offset = '') {
+    let records = [];
     try {
-      const response = await fetch(airtableUrl, {
+      let url = `${airtableUrl}?pageSize=100`;
+      if (offset) {
+        url += `&offset=${offset}`;
+      }
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${apiKey}`,
         },
@@ -21,17 +26,20 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       const data = await response.json();
-      console.log('Fetched data from Airtable:', data);
-      displayMedia(data.records);
+      records = data.records;
+      displayMedia(records); // Display the current batch of records
+
+      if (data.offset) {
+        // If there's more data, recursively fetch the next page
+        await fetchRecords(data.offset);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
-  // Display media records in the gallery
+  // Function to display media records in the gallery
   function displayMedia(records) {
-    gallerySection.innerHTML = ''; // Clear the gallery before populating
-
     records.forEach(record => {
       const mediaUrl = record.fields['CloudinaryURL'];
       const title = record.fields['Title'];
@@ -52,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Create a media card for the gallery
         const mediaCard = document.createElement('div');
-        mediaCard.classList.add('media-card'); 
+        mediaCard.classList.add('media-card');
         mediaCard.innerHTML = `
           <div class="media-content">
             ${mediaType === 'image' ? `<img src="${mediaUrl}" alt="${title}">` : ''}
@@ -78,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Update the click count in Airtable
+  // Function to update the click count in Airtable
   async function updateClickCount(recordId, clickCount) {
     try {
       const response = await fetch(`${airtableUrl}/${recordId}`, {
@@ -102,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Show the detailed view of the media in a modal
+  // Function to show the detailed view of the media in a modal
   function showDetailView(title, artist, tags, mediaUrl, mediaType, clickCount) {
     const modal = document.getElementById('detail-modal');
     const modalContent = modal.querySelector('.modal-content');
@@ -133,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
-  // Copy the media URL to clipboard
+  // Function to copy the media URL to clipboard
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
       alert('Link copied to clipboard!');
@@ -143,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Download the media
+  // Function to download the media
   function downloadMedia(url) {
     const link = document.createElement('a');
     link.href = url;
@@ -151,6 +159,6 @@ document.addEventListener('DOMContentLoaded', function () {
     link.click();
   }
 
-  // Fetch records on page load
+  // Fetch all records on page load
   fetchRecords();
 });
