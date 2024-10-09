@@ -1,30 +1,23 @@
-const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; // Airtable API key
-const baseId = 'app5SXCJbXkjbyzws'; // Airtable Base ID
-const tableName = 'Gallery'; // Airtable Table name
-const viewName = 'Grid view'; // Airtable view
-const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}&api_key=${apiKey}`;
+const baseId = 'app5SXCJbXkjbyzws'; // Replace with your Airtable base ID
+const tableName = 'Gallery'; // Replace with your Airtable table name
+const viewName = 'Grid view'; // Replace with your Airtable view name
+const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; // Replace with your Airtable PAT
 
-let mediaRecords = [];
-let mediaClicks = {};
+const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}`;
 
-async function fetchRecords(offset = '') {
-    const fetchUrl = offset ? `${url}&offset=${offset}` : url;
-    try {
-        console.log(`Fetching from URL: ${fetchUrl}`); // Log the fetch URL for debugging
-        const response = await fetch(fetchUrl);
-        const data = await response.json();
-        console.log('Fetched data from Airtable:', data); // Log the fetched data
+const options = {
+  headers: {
+    Authorization: `Bearer ${apiKey}`,  // Send the PAT as a Bearer token
+  },
+};
 
-        mediaRecords = [...mediaRecords, ...data.records];
-        if (data.offset) {
-            await fetchRecords(data.offset); // Paginate and fetch all records
-        } else {
-            displayMedia(mediaRecords);
-        }
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
+fetch(url, options)
+  .then(response => response.json())
+  .then(data => {
+    console.log('Fetched data from Airtable:', data);
+    // Process the fetched data
+  })
+  .catch(error => console.error('Error fetching data:', error));
 
 function displayMedia(records) {
     const gallery = document.getElementById('gallery');
