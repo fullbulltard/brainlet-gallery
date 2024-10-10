@@ -23,15 +23,13 @@ input#search {
 }
 
 .gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
     padding: 20px;
 }
 
 .media-card {
     background-color: #fff;
     padding: 10px;
+    margin-bottom: 20px;
     text-align: center;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

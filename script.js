@@ -1,98 +1,67 @@
-// Airtable configuration
-const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; 
-const baseId = 'app5SXCJbXkjbyzws'; 
+const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453'; 
+const baseId = 'app5SXCJbXkjbyzws';
 const tableName = 'Gallery';
 const viewName = 'Grid view';
+const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}&api_key=${apiKey}`;
 
-// Function to fetch records from Airtable with pagination
-async function fetchRecords(offset = '') {
-    const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}&offset=${offset}`;
-    const response = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${apiKey}`
-        }
-    });
+const gallery = document.getElementById('gallery');
+const detailModal = document.getElementById('detailModal');
+const modalImage = document.getElementById('modalImage');
+const modalArtist = document.getElementById('modalArtist');
+const modalTags = document.getElementById('modalTags');
+const modalClicks = document.getElementById('modalClicks');
+const closeModal = document.getElementById('closeModal');
 
-    if (!response.ok) {
-        console.error('Error fetching data:', response.statusText);
-        return;
-    }
-
-    const data = await response.json();
-    console.log('Fetched data from Airtable:', data);
-
-    // Ensure data.records exists and is iterable
-    if (data.records && Array.isArray(data.records)) {
-        displayMedia(data.records);
-
-        // If there's more data, continue fetching
-        if (data.offset) {
-            fetchRecords(data.offset);
-        }
-    } else {
-        console.error('Error fetching data: data.records is not iterable or missing');
-    }
-}
-
-// Function to display media in the gallery
-function displayMedia(records) {
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = ''; // Clear the gallery
-
-    records.forEach(record => {
-        const mediaUrl = record.fields['CloudinaryURL'];
-        const title = record.fields['Title'];
-        const artist = record.fields['Creator'];
-        const tags = record.fields['Tags'];
-        const clicks = record.fields['Clicks'] || 0;
-
-        if (mediaUrl) {
-            const mediaCard = document.createElement('div');
-            mediaCard.classList.add('media-card');
-
-            const imgElement = document.createElement('img');
-            imgElement.src = mediaUrl;
-            imgElement.alt = title;
-            imgElement.classList.add('gallery-image');
-            imgElement.onclick = () => showDetailView(artist, tags, clicks, mediaUrl);
-
-            mediaCard.appendChild(imgElement);
-            gallery.appendChild(mediaCard);
-        }
-    });
-}
-
-// Function to show details in modal
-function showDetailView(artist, tags, clicks, mediaUrl) {
-    const modal = document.getElementById('detailModal');
-    const modalArtist = document.getElementById('modalArtist');
-    const modalTags = document.getElementById('modalTags');
-    const modalClicks = document.getElementById('modalClicks');
-    const modalImage = document.getElementById('modalImage');
-
-    modalArtist.textContent = `Creator: ${artist || 'Unknown'}`;
-    modalTags.textContent = `Tags: ${tags ? tags.join(', ') : 'None'}`;
-    modalClicks.textContent = `Views: ${clicks}`;
-    modalImage.src = mediaUrl;
-
-    modal.style.display = 'block';
-}
-
-// Close modal function
-function closeModal() {
-    const modal = document.getElementById('detailModal');
-    modal.style.display = 'none';
-}
-
-// Ensure DOM content is loaded before attaching event listeners
-document.addEventListener("DOMContentLoaded", function () {
-    const closeModalBtn = document.getElementById('closeModal');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeModal);
-    } else {
-        console.error('Modal close button not found!');
-    }
-
-    // Fetch Airtable records once the DOM is ready
-    fetchRecords();
+closeModal.addEventListener('click', () => {
+    detailModal.style.display = 'none';
 });
+
+async function fetchRecords(offset = '') {
+    let fetchUrl = url;
+    if (offset) {
+        fetchUrl += `&offset=${offset}`;
+    }
+
+    const response = await fetch(fetchUrl);
+    const data = await response.json();
+
+    displayMedia(data.records);
+
+    if (data.offset) {
+        fetchRecords(data.offset);
+    }
+}
+
+function displayMedia(records) {
+    records.forEach(record => {
+        const fields = record.fields;
+
+        const card = document.createElement('div');
+        card.classList.add('media-card');
+
+        const img = document.createElement('img');
+        img.src = fields.CloudinaryURL;
+        img.alt = fields.Title;
+        img.classList.add('gallery-image');
+        img.loading = 'lazy'; // Lazy loading attribute
+
+        img.addEventListener('click', () => {
+            modalImage.src = fields.CloudinaryURL;
+            modalArtist.textContent = `Creator: ${fields.Creator}`;
+            modalTags.textContent = `Tags: ${fields.Tags || 'None'}`;
+            modalClicks.textContent = `Views: ${fields.Clicks || 0}`;
+            detailModal.style.display = 'block';
+        });
+
+        card.appendChild(img);
+        gallery.appendChild(card);
+    });
+
+    // Reinitialize Masonry after new images are added
+    new Masonry(gallery, {
+        itemSelector: '.media-card',
+        columnWidth: 200
+    });
+}
+
+fetchRecords();

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brainlet Gallery</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script> <!-- Masonry JS -->
 </head>
 <body>
     <header>
@@ -12,7 +13,7 @@
         <input type="text" id="search" placeholder="Search memes...">
     </header>
 
-    <section id="gallery" class="gallery"></section>
+    <section id="gallery" class="gallery" data-masonry='{"itemSelector": ".media-card", "columnWidth": 200}'></section>
 
     <!-- Modal for media detail view -->
     <div id="detailModal" class="modal">
