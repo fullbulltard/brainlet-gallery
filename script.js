@@ -2,7 +2,8 @@ const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71
 const baseId = 'app5SXCJbXkjbyzws';
 const tableName = 'Gallery';
 const viewName = 'Grid view';
-const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}&api_key=${apiKey}`;
+
+const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}`;
 
 const gallery = document.getElementById('gallery');
 const detailModal = document.getElementById('detailModal');
@@ -22,10 +23,16 @@ async function fetchRecords(offset = '') {
         fetchUrl += `&offset=${offset}`;
     }
 
-    const response = await fetch(fetchUrl);
+    const response = await fetch(fetchUrl, {
+        headers: {
+            Authorization: `Bearer ${apiKey}`
+        }
+    });
     const data = await response.json();
 
-    displayMedia(data.records);
+    if (data.records) {
+        displayMedia(data.records);
+    }
 
     if (data.offset) {
         fetchRecords(data.offset);
