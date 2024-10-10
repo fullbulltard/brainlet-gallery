@@ -1,4 +1,4 @@
-const apiKey = 'patcI4PGCeVfINiqC.8107e7c1fc6982557edb794d1628257a275ea1100779df9303d49a944e255453'; 
+const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; 
 const baseId = 'app5SXCJbXkjbyzws';
 const tableName = 'Gallery';
 const viewName = 'Grid view';
