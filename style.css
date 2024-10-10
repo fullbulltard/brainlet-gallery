@@ -33,12 +33,15 @@ input#search {
     text-align: center;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 200px;
 }
 
 .gallery-image {
     width: 100%;
     height: auto;
     border-radius: 8px;
+    display: block;
+    object-fit: cover;
 }
 
 .modal {
@@ -76,4 +79,10 @@ input#search {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .media-card {
+        width: 250px;
+    }
 }

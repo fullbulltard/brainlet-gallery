@@ -1,76 +1,61 @@
-const apiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8'; 
-const baseId = 'app5SXCJbXkjbyzws';
+const apiKey = '238495427757831';
+const airtableApiKey = 'patjTtCruaN066dZS.062a9d549877450667ef3dbafb5463225f2e17e72b3f71236220a800f9a483c8';
+const airtableBaseId = 'app5SXCJbXkjbyzws';
 const tableName = 'Gallery';
-const viewName = 'Grid view';
 
-const url = `https://api.airtable.com/v0/${baseId}/${tableName}?view=${viewName}`;
+// Cloudinary helper function
+const createCloudinaryUrl = (url, width = 300) => {
+    const baseUrl = 'https://res.cloudinary.com/dkqnfmroc/image/fetch/';
+    return `${baseUrl}w_${width},q_auto,f_auto/${encodeURIComponent(url)}`;
+};
 
-const gallery = document.getElementById('gallery');
-const detailModal = document.getElementById('detailModal');
-const modalImage = document.getElementById('modalImage');
-const modalArtist = document.getElementById('modalArtist');
-const modalTags = document.getElementById('modalTags');
-const modalClicks = document.getElementById('modalClicks');
-const closeModal = document.getElementById('closeModal');
+// Function to fetch records from Airtable
+async function fetchRecords() {
+    try {
+        const url = `https://api.airtable.com/v0/${airtableBaseId}/${tableName}?view=Grid%20view`;
+        const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${airtableApiKey}` },
+        });
+        const data = await response.json();
 
-closeModal.addEventListener('click', () => {
-    detailModal.style.display = 'none';
-});
-
-async function fetchRecords(offset = '') {
-    let fetchUrl = url;
-    if (offset) {
-        fetchUrl += `&offset=${offset}`;
-    }
-
-    const response = await fetch(fetchUrl, {
-        headers: {
-            Authorization: `Bearer ${apiKey}`
+        if (!data.records) {
+            console.error('Error fetching data: No records found');
+            return;
         }
-    });
-    const data = await response.json();
 
-    if (data.records) {
         displayMedia(data.records);
-    }
-
-    if (data.offset) {
-        fetchRecords(data.offset);
+    } catch (error) {
+        console.error('Error fetching data:', error);
     }
 }
 
+// Function to display media
 function displayMedia(records) {
-    if (!records) return;
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';  // Clear the gallery content
 
     records.forEach(record => {
-        const fields = record.fields;
+        const mediaCard = document.createElement('div');
+        mediaCard.classList.add('media-card');
 
-        const card = document.createElement('div');
-        card.classList.add('media-card');
+        const imgUrl = record.fields.CloudinaryURL;
+        const imgElement = document.createElement('img');
+        imgElement.src = createCloudinaryUrl(imgUrl, 300);  // Load optimized Cloudinary URL
+        imgElement.alt = record.fields.Title || 'Gallery Image';
+        imgElement.classList.add('gallery-image');
+        imgElement.loading = 'lazy';  // Enable lazy loading
 
-        const img = document.createElement('img');
-        img.src = fields.CloudinaryURL;
-        img.alt = fields.Title;
-        img.classList.add('gallery-image');
-        img.loading = 'lazy'; // Lazy loading attribute
-
-        img.addEventListener('click', () => {
-            modalImage.src = fields.CloudinaryURL;
-            modalArtist.textContent = `Creator: ${fields.Creator}`;
-            modalTags.textContent = `Tags: ${fields.Tags || 'None'}`;
-            modalClicks.textContent = `Views: ${fields.Clicks || 0}`;
-            detailModal.style.display = 'block';
-        });
-
-        card.appendChild(img);
-        gallery.appendChild(card);
+        mediaCard.appendChild(imgElement);
+        gallery.appendChild(mediaCard);
     });
 
-    // Reinitialize Masonry after new images are added
-    new Masonry(gallery, {
+    // Reapply Masonry layout
+    const masonryInstance = new Masonry(gallery, {
         itemSelector: '.media-card',
-        columnWidth: 200
+        columnWidth: 200,
+        gutter: 10,
     });
 }
 
-fetchRecords();
+// Trigger fetching of records on page load
+window.addEventListener('load', fetchRecords);
