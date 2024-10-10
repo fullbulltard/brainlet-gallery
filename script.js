@@ -33,6 +33,8 @@ async function fetchRecords(offset = '') {
 }
 
 function displayMedia(records) {
+    if (!records) return;
+
     records.forEach(record => {
         const fields = record.fields;
 
